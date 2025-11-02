@@ -94,3 +94,56 @@ INSERT INTO producao_real (produto_id, mes, dia, quantidade) VALUES
 -- Inserir cliente de exemplo
 INSERT INTO clientes (nome, email, chave_acesso) VALUES
 ('Supermercado Central', 'central@email.com', 'chave123');
+
+
+-- Tabela para logs de acesso (adicionar ao script SQL existente)
+CREATE TABLE log_acessos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    user_type ENUM('cliente', 'admin'),
+    action VARCHAR(100) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Adicionar coluna 'ativo' à tabela clientes
+ALTER TABLE clientes ADD COLUMN ativo BOOLEAN DEFAULT TRUE;
+
+-- Atualizar cliente exemplo para ter a coluna ativo
+UPDATE clientes SET ativo = TRUE WHERE id = 1;
+
+
+
+
+
+
+SELECT * FROM clientes;
+
+
+
+-- Adicionar coluna de imagem aos produtos
+ALTER TABLE produtos ADD COLUMN imagem VARCHAR(255) NULL;
+
+-- Criar tabela de logs de acesso se não existir
+CREATE TABLE IF NOT EXISTS log_acessos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    user_type ENUM('cliente', 'admin'),
+    action VARCHAR(100) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Verificar a estrutura da tabela proformas
+DESCRIBE proformas;
+
+-- Se necessário, atualizar a coluna status
+ALTER TABLE proformas 
+MODIFY COLUMN status ENUM('pendente', 'confirmada', 'cancelada') DEFAULT 'pendente';
+
+-- Verificar os dados atuais
+SELECT id, status FROM proformas;
