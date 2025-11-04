@@ -22,8 +22,8 @@ function getProdutos() {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function gerarChaveDeAcesso ($email) : string {
-    return $email . '_c';
+function gerarChaveDeAcesso ($nome) : string {
+    return mb_substr(mb_strtolower($nome), floor(mb_strlen($nome) / 2), mb_strlen($nome));
 }
 
 function registarCliente ($nome, $email) {

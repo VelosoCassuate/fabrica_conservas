@@ -5,7 +5,6 @@ require_once '../includes/auth.php';
 
 requireAdminAuth();
 
-// Buscar dados reais de produção
 $producao_mensal = [];
 for ($mes = 1; $mes <= 6; $mes++) {
     $database = new Database();
@@ -29,7 +28,13 @@ ob_start();
 ?>
 <!-- Stats Cards -->
 <div class="stats-grid">
-    <div class="stat-card fade-in">
+    <style>
+        .stat-card {
+            cursor: pointer;
+            border: .5px #d1d0d0ff solid;
+        }
+    </style>
+    <div style="s" class="stat-card fade-in">
         <div class="stat-icon">
             <i class="fas fa-boxes"></i>
         </div>
