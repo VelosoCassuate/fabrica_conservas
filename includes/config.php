@@ -4,6 +4,10 @@ define('DB_HOST', 'localhost');
 define('DB_NAME', 'fabrica_conservas');
 define('DB_USER', 'root');
 define('DB_PASS', '');
+define('ADMIN_USERS', [
+  'admin' => password_hash('admin123', PASSWORD_DEFAULT),
+  'gerente' => password_hash('gerente123', PASSWORD_DEFAULT)
+]);
 
 // Configurações do site
 define('SITE_NAME', 'BConserves - Fábrica de Conservas');
