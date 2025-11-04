@@ -3,6 +3,7 @@ require_once '../includes/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
+// Redireciona se o cliente não estiver logado
 if(!isset($_SESSION['cliente_id'])) {
     header('Location: cliente_login.php');
     exit;
@@ -39,6 +40,8 @@ $proformas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
     $itens = [];
     foreach($_POST['quantidade'] as $produto_id => $quantidade) {
+        // Garante que a quantidade seja um número positivo
+        $quantidade = (int)$quantidade;
         if($quantidade > 0) {
             $itens[] = [
                 'produto_id' => $produto_id,
@@ -68,51 +71,180 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Área do Cliente - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="css/site.css">
     <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+    
     <style>
+        /* Variáveis CSS globais para consistência */
+        :root {
+            --primary-color: #2c3e50;
+            --primary-hover: #37526dff;
+            --secondary-color: #e74c3c;
+            --secondary-hover: #c0392b;
+            --background-color: #f4f7f6;
+            --card-background: #ffffff;
+            --text-color: #34495e;
+            --text-light: #666;
+            --error-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+        }
+
+        /* Estilos base (body, container) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--background-color); color: var(--text-color); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        h3 { color: var(--primary-color); margin-top: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; }
+        
+        /* Header & Footer (Consistente com outras páginas) */
+        header { background: var(--card-background); box-shadow: var(--shadow-light); position: sticky; top: 0; z-index: 1000; }
+        header .container { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; }
+        header h1 { color: var(--primary-color); font-size: 1.8rem; font-weight: 700; }
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { text-decoration: none; color: var(--text-color); font-weight: 600; padding: 0.5rem 1rem; border-radius: var(--border-radius-sm); transition: all 0.3s ease; }
+        nav a:hover, nav a.active { background: var(--primary-color); color: white; }
+        
+        footer { background: var(--primary-color); color: white; padding: 1.5rem 0; margin-top: 4rem; text-align: center; }
+
+        /* Estilos de Botão Genéricos */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+        .btn-primary { background: var(--info-color); color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-success:hover { background: #229954; }
+        .btn-danger { background: var(--error-color); color: white; }
+        .btn-danger:hover { background: var(--secondary-hover); }
+        .btn-sm { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+        .btn-lg { font-size: 1.2rem; padding: 0.75rem 1.5rem; }
+
+        /* Estilos de Alerta Genéricos */
+        .alert {
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius-sm);
+            font-weight: 500;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* Layout do Dashboard */
+        .cliente-area {
+            padding: 2rem 0;
+        }
+
+        .cliente-area h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
         .cliente-dashboard {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin: 2rem 0;
+            grid-template-columns: 2fr 3fr; /* Ajustado para dar mais espaço à criação de proforma */
+            gap: 3rem; /* Aumentado o espaçamento */
+            margin: 1rem 0;
         }
         
+        /* Seção Minhas Proformas */
         .proforma-card {
-            background: white;
+            background: var(--card-background);
             padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid #3498db;
-            margin-bottom: 1rem;
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-light);
+            border-left: 5px solid var(--info-color); /* Aumentada a borda para destaque */
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+        .proforma-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        }
+
+        .proforma-card h4 {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 1.2rem;
         }
         
-        .proforma-card.pendente {
-            border-left-color: #f39c12;
+        .proforma-card.pendente { border-left-color: var(--warning-color); }
+        .proforma-card.confirmada { border-left-color: var(--success-color); }
+        
+        .proforma-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
         }
         
-        .proforma-card.confirmada {
-            border-left-color: #27ae60;
+        .proforma-card p {
+            margin: 0.3rem 0;
+            font-size: 0.95rem;
+        }
+
+        .preco {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .badge-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
         }
         
+        .badge-pendente { background: #fff3cd; color: #856404; }
+        .badge-confirmada { background: #d4edda; color: #155724; }
+        
+        .proforma-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Seção Nova Proforma (Listagem de Produtos para Pedido) */
         .produto-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
-            margin: 2rem 0;
+            margin-top: 1.5rem;
         }
         
         .produto-card-cliente {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--card-background);
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-light);
             transition: all 0.3s ease;
         }
         
-        .produto-card-cliente:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        .produto-card-cliente h4 {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .produto-card-cliente .preco {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
         }
         
         .quantidade-input {
@@ -121,62 +253,106 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
             border: 1px solid #ddd;
             border-radius: 4px;
             text-align: center;
+            font-size: 1rem;
         }
         
-        .badge-status {
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .badge-pendente {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .badge-confirmada {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .proforma-header {
+        .produto-imagem {
+            height: 120px;
+            overflow: hidden;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        .produto-imagem img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
-        .proforma-actions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+        .exportacao-info {
+            background: #f7faff;
+            border: 1px dashed #c0d8f0;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .produto-descricao {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            min-height: 40px; /* Garante altura mínima */
         }
         
+        .subtotal {
+            text-align: right;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        /* Estilo para Empty State */
         .empty-state {
             text-align: center;
             padding: 3rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            color: #6c757d;
+            background: var(--card-background);
+            border-radius: var(--border-radius-sm);
+            color: var(--text-light);
+            border: 1px solid #eee;
+            box-shadow: var(--shadow-light);
         }
-        
         .empty-state i {
             font-size: 3rem;
             margin-bottom: 1rem;
-            color: #dee2e6;
+            color: #bdc3c7;
         }
-        
-        @media (max-width: 768px) {
+
+        /* Estilo da seção de informações adicionais */
+        .info-proforma {
+            background: #e8f4fd;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+            border-left: 5px solid var(--info-color);
+            color: var(--text-color);
+        }
+
+        .info-proforma h4 {
+            color: var(--info-color);
+            margin-bottom: 1rem;
+        }
+
+        .info-proforma ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-proforma ul li {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
             .cliente-dashboard {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* Colunas empilhadas em telas menores */
+                gap: 3rem;
             }
-            
+        }
+        @media (max-width: 768px) {
             .proforma-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
+            }
+            header .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            nav ul {
+                gap: 1rem;
             }
         }
     </style>
@@ -203,19 +379,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                 <h2>Bem-vindo, <?php echo $_SESSION['cliente_nome']; ?>!</h2>
                 
                 <?php if(isset($_SESSION['mensagem_sucesso'])): ?>
-                    <div class="alert alert-success"><?php echo $_SESSION['mensagem_sucesso']; unset($_SESSION['mensagem_sucesso']); ?></div>
+                    <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?php echo $_SESSION['mensagem_sucesso']; unset($_SESSION['mensagem_sucesso']); ?></div>
                 <?php endif; ?>
                 
                 <?php if(isset($_SESSION['mensagem_erro'])): ?>
-                    <div class="alert alert-error"><?php echo $_SESSION['mensagem_erro']; unset($_SESSION['mensagem_erro']); ?></div>
+                    <div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> <?php echo $_SESSION['mensagem_erro']; unset($_SESSION['mensagem_erro']); ?></div>
                 <?php endif; ?>
                 
                 <?php if($mensagem): ?>
-                    <div class="alert alert-error"><?php echo $mensagem; ?></div>
+                    <div class="alert alert-error"><i class="fas fa-times-circle"></i> <?php echo $mensagem; ?></div>
                 <?php endif; ?>
                 
                 <div class="cliente-dashboard">
-                    <!-- Minhas Proformas Ativas -->
                     <div class="proformas-section">
                         <h3><i class="fas fa-file-invoice"></i> Minhas Proformas Ativas</h3>
                         
@@ -227,7 +402,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                                 <p><small>As proformas canceladas não são exibidas nesta lista.</small></p>
                             </div>
                         <?php else: ?>
-                            <p class="text-muted"><small>Mostrando <?php echo count($proformas); ?> proforma(s) ativa(s)</small></p>
+                            <p class="text-muted" style="margin-bottom: 1rem;"><small>Mostrando <?php echo count($proformas); ?> proforma(s) ativa(s)</small></p>
                             <?php foreach($proformas as $proforma): ?>
                                 <div class="proforma-card <?php echo $proforma['status']; ?>">
                                     <div class="proforma-header">
@@ -242,14 +417,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                                     <p><strong>Valor Total:</strong> <span class="preco"><?php echo number_format($proforma['valor_total'], 2, ',', '.'); ?> MT</span></p>
                                     <div class="proforma-actions">
                                         <a href="exportar_proforma.php?id=<?php echo $proforma['id']; ?>" 
-                                           target="_blank"
-                                           class="btn btn-primary btn-sm">
+                                            target="_blank"
+                                            class="btn btn-primary btn-sm">
                                             <i class="fas fa-file-pdf"></i> Exportar PDF
                                         </a>
                                         <?php if($proforma['status'] == 'pendente'): ?>
                                             <a href="cancelar_proforma.php?id=<?php echo $proforma['id']; ?>" 
-                                               class="btn btn-danger btn-sm"
-                                               onclick="return confirm('Tem certeza que deseja cancelar esta proforma? Esta ação não pode ser desfeita.')">
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Tem certeza que deseja cancelar esta proforma? Esta ação não pode ser desfeita.')">
                                                 <i class="fas fa-times"></i> Cancelar
                                             </a>
                                         <?php endif; ?>
@@ -259,7 +434,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Nova Proforma -->
                     <div class="nova-proforma-section">
                         <h3><i class="fas fa-cart-plus"></i> Nova Proforma</h3>
                         
@@ -267,12 +441,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                             <div class="produto-grid">
                                 <?php foreach($produtos as $produto): ?>
                                     <div class="produto-card-cliente">
-                                        <?php if(!empty($produto['imagem']) && file_exists('../uploads/' . $produto['imagem'])): ?>
-                                            <div class="produto-imagem">
-                                                <img src="../uploads/<?php echo $produto['imagem']; ?>" 
-                                                     alt="<?php echo $produto['nome']; ?>">
-                                            </div>
-                                        <?php endif; ?>
+                                        
+                                        <div class="produto-imagem">
+                                            <?php if(!empty($produto['imagem']) && file_exists('../uploads/' . $produto['imagem'])): ?>
+                                                <img src="../uploads/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+                                            <?php else: ?>
+                                                 <div class="sem-imagem" style="font-size: 2rem; color: #ddd;"><i class="fas fa-box"></i></div>
+                                            <?php endif; ?>
+                                        </div>
                                         
                                         <h4><?php echo $produto['nome']; ?></h4>
                                         <p class="preco"><?php echo number_format($produto['preco'], 2, ',', '.'); ?> MT</p>
@@ -280,35 +456,31 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                                         
                                         <?php if($produto['exportacao']): ?>
                                             <div class="exportacao-info">
-                                                <p><strong><i class="fas fa-globe"></i> Produto de Exportação</strong></p>
-                                                <p><strong>Embalagem:</strong> <?php echo $produto['material_embalagem']; ?></p>
-                                                <?php if($produto['preco_embalagem'] > 0): ?>
-                                                    <p><strong>Preço embalagem:</strong> <?php echo number_format($produto['preco_embalagem'], 2, ',', '.'); ?> MT</p>
-                                                <?php endif; ?>
+                                                <p style="margin: 0; font-weight: 600;"><i class="fas fa-globe"></i> Produto de Exportação</p>
                                             </div>
                                         <?php endif; ?>
                                         
-                                        <div class="quantidade-control" style="padding: 10px 0;">
-                                            <label for="quantidade_<?php echo $produto['id']; ?>"><strong>Quantidade:</strong></label>
+                                        <div class="quantidade-control" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                                            <label for="quantidade_<?php echo $produto['id']; ?>">Quantidade:</label>
                                             <input type="number" 
-                                                   id="quantidade_<?php echo $produto['id']; ?>" 
-                                                   name="quantidade[<?php echo $produto['id']; ?>]" 
-                                                   class="quantidade-input" 
-                                                   min="0" 
-                                                   value="0"
-                                                   data-preco="<?php echo $produto['preco']; ?>"
-                                                   onchange="calcularTotal()">
+                                                    id="quantidade_<?php echo $produto['id']; ?>" 
+                                                    name="quantidade[<?php echo $produto['id']; ?>]" 
+                                                    class="quantidade-input" 
+                                                    min="0" 
+                                                    value="0"
+                                                    data-preco="<?php echo $produto['preco']; ?>"
+                                                    onchange="calcularTotal()">
                                         </div>
-                                        <div class="subtotal" id="subtotal_<?php echo $produto['id']; ?>"><strong>0,00 MT</strong></div>
+                                        <div class="subtotal" id="subtotal_<?php echo $produto['id']; ?>">0,00 MT</div>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
                             
-                            <div class="total-section" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+                            <div class="total-section" style="background: var(--card-background); border: 1px solid #eee; padding: 1.5rem; border-radius: var(--border-radius); margin-top: 2rem; box-shadow: var(--shadow-light);">
                                 <h4><i class="fas fa-receipt"></i> Resumo da Proforma</h4>
-                                <div class="total-line" style="font-size: 1.2rem;">
+                                <div class="total-line" style="display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; margin: 1rem 0;">
                                     <strong>Total: </strong>
-                                    <span id="total-geral" style="font-size: 1.5rem; color: #e74c3c;">0,00 MT</span>
+                                    <span id="total-geral" style="font-size: 1.6rem; color: var(--secondary-color); font-weight: 700;">0,00 MT</span>
                                 </div>
                                 <button type="submit" name="criar_proforma" class="btn btn-success btn-lg" style="margin-top: 1rem; width: 100%;">
                                     <i class="fas fa-file-contract"></i> Criar Proforma
@@ -318,13 +490,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                     </div>
                 </div>
                 
-                <div class="info-proforma" style="background: #e8f4fd; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+                <div class="info-proforma">
                     <h4><i class="fas fa-info-circle"></i> Informações Importantes</h4>
                     <ul>
-                        <li><strong>Proformas ativas:</strong> Apenas proformas pendentes e confirmadas são exibidas</li>
-                        <li><strong>Canceladas:</strong> Proformas canceladas são removidas automaticamente da lista</li>
-                        <li><strong>Validade:</strong> Proformas são válidas por 7 dias úteis</li>
-                        <li><strong>Confirmação:</strong> Apresente a proforma na fábrica para confirmar a compra</li>
+                        <li><i class="fas fa-tag" style="color: var(--info-color);"></i> <strong>Proformas ativas:</strong> Apenas proformas pendentes e confirmadas são exibidas.</li>
+                        <li><i class="fas fa-times-circle" style="color: var(--error-color);"></i> <strong>Canceladas:</strong> Proformas canceladas são removidas automaticamente da lista.</li>
+                        <li><i class="fas fa-calendar-alt" style="color: var(--warning-color);"></i> <strong>Validade:</strong> Proformas são válidas por 7 dias úteis.</li>
+                        <li><i class="fas fa-factory" style="color: var(--success-color);"></i> <strong>Confirmação:</strong> Apresente a proforma na fábrica para confirmar a compra e iniciar o processamento.</li>
                     </ul>
                 </div>
             </div>
@@ -338,19 +510,36 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
     </footer>
 
     <script>
+        // Função para formatar números em moeda Moçambicana (MT)
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-MZ', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }).replace('.', ' ').replace(',', '.') + ' MT';
+        }
+
         // Cálculo automático dos subtotais e total
         function calcularTotal() {
             let total = 0;
             
             document.querySelectorAll('.quantidade-input').forEach(input => {
                 const quantidade = parseInt(input.value) || 0;
+                // Garante que o input não é negativo
+                if (quantidade < 0) {
+                    input.value = 0;
+                    quantidade = 0;
+                }
+                
                 const preco = parseFloat(input.dataset.preco);
                 const subtotal = quantidade * preco;
                 
-                const produtoId = input.name.match(/\[(\d+)\]/)[1];
-                const subtotalElement = document.getElementById('subtotal_' + prodottoId);
-                if (subtotalElement) {
-                    subtotalElement.innerHTML = '<strong>' + subtotal.toFixed(2).replace('.', ',') + ' MT</strong>';
+                const produtoIdMatch = input.name.match(/\[(\d+)\]/);
+                if (produtoIdMatch) {
+                    const produtoId = produtoIdMatch[1];
+                    const subtotalElement = document.getElementById('subtotal_' + produtoId);
+                    if (subtotalElement) {
+                        subtotalElement.innerHTML = '<strong>' + formatarMoeda(subtotal) + '</strong>';
+                    }
                 }
                 
                 total += subtotal;
@@ -358,12 +547,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
             
             const totalGeralElement = document.getElementById('total-geral');
             if (totalGeralElement) {
-                totalGeralElement.textContent = total.toFixed(2).replace('.', ',') + ' MT';
+                totalGeralElement.textContent = formatarMoeda(total);
             }
         }
         
-        // Calcular total inicial
-        document.addEventListener('DOMContentLoaded', calcularTotal);
+        // Calcular total inicial e adicionar listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            calcularTotal();
+            document.querySelectorAll('.quantidade-input').forEach(input => {
+                 input.addEventListener('change', calcularTotal);
+                 input.addEventListener('input', calcularTotal);
+            });
+        });
     </script>
 </body>
 </html>
