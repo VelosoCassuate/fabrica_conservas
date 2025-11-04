@@ -503,7 +503,7 @@ window.onclick = function(event) {
 }
 
 // Pesquisa em tempo real
-document.getElementById('searchProdutos').addEventListener('keyup', filtrarProdutos);
+document.getElementById('searchProdutos').addEventListener('input', filtrarProdutos);
 
 // Debug: verificar se os produtos foram carregados
 console.log('Produtos carregados:', produtosData);
