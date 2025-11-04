@@ -193,4 +193,23 @@ function salvarReclamacao($nome, $email, $tipo, $mensagem) {
     
     return $stmt->execute();
 }
+/**
+ * Registra ações no sistema para auditoria
+ */
+function logAction($acao) {
+    $usuario = $_SESSION['usuario_nome'] ?? 'Sistema';
+    $data = date('Y-m-d H:i:s');
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'Desconhecido';
+    
+    $log_entry = "[{$data}] [{$ip}] [{$usuario}] - {$acao}" . PHP_EOL;
+    
+    // Criar diretório de logs se não existir
+    $log_dir = '../logs/';
+    if (!file_exists($log_dir)) {
+        mkdir($log_dir, 0777, true);
+    }
+    
+    // Escrever no arquivo de log
+    file_put_contents($log_dir . 'sistema.log', $log_entry, FILE_APPEND | LOCK_EX);
+}
 ?>

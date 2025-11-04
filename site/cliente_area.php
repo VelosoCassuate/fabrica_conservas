@@ -69,7 +69,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Área do Cliente - <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="css/site.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
     <style>
         .cliente-dashboard {
             display: grid;
@@ -288,7 +288,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['criar_proforma'])) {
                                             </div>
                                         <?php endif; ?>
                                         
-                                        <div class="quantidade-control">
+                                        <div class="quantidade-control" style="padding: 10px 0;">
                                             <label for="quantidade_<?php echo $produto['id']; ?>"><strong>Quantidade:</strong></label>
                                             <input type="number" 
                                                    id="quantidade_<?php echo $produto['id']; ?>" 
