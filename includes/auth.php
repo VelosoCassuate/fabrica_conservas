@@ -103,12 +103,11 @@ class Auth {
      * Autentica um administrador
      */
     public function authenticateAdmin($username, $password) {
-        // Em um sistema real, isso viria de uma tabela de administradores
+        //Credenciais de administração
         $admin_users = [
             'admin' => password_hash('admin123', PASSWORD_DEFAULT),
             'gerente' => password_hash('gerente123', PASSWORD_DEFAULT)
         ];
-
         if (isset($admin_users[$username]) && password_verify($password, $admin_users[$username])) {
             $_SESSION['admin_id'] = 1;
             $_SESSION['admin_username'] = $username;

@@ -11,6 +11,8 @@ $produtos = getProdutos();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos - <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="css/site.css">
+    <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+    
     <style>
         .produto-imagem {
             width: 100%;
@@ -171,7 +173,6 @@ $produtos = getProdutos();
     </footer>
 
     <!-- Adicionar Font Awesome para os ícones -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script src="js/site.js"></script>
 </body>
 </html>

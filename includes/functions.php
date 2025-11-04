@@ -22,6 +22,21 @@ function getProdutos() {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function gerarChaveDeAcesso ($email) : string {
+    return $email . '_c';
+}
+
+function registarCliente ($nome, $email) {
+    $database = new Database();
+    $db = $database->getConnection();
+
+    $chave_acesso = gerarChaveDeAcesso($email);
+
+    $query = $db->prepare("INSERT INTO clientes (nome, email, chave_acesso, ativo) VALUES (?, ?, ?, ?);");
+    $query->execute([$nome, $email, $chave_acesso, 1]);  
+}
+
+
 function getProdutoPorId($id) {
     $database = new Database();
     $db = $database->getConnection();

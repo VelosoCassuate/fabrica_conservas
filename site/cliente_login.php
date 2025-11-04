@@ -57,9 +57,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <form method="POST" class="login-form">
                     <div class="form-group">
                         <label for="chave_acesso">Chave de Acesso:</label>
-                        <input type="password" id="chave_acesso" name="chave_acesso" required>
+                        <input type="password" id="chave_acesso" name="chave_acesso">
                     </div>
                     <button type="submit" class="btn">Entrar</button>
+                    <a style="padding: 8px; background-color: #2c3e50;" class="btn" href="registar.php">Registar</a>
                 </form>
                 <p class="info-text">Apenas clientes autorizados têm acesso a esta área. Entre em contato conosco para obter sua chave de acesso.</p>
             </div>
