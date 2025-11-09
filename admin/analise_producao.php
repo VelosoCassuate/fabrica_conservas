@@ -156,11 +156,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['registrar_producao']))
             <div class="grafico-container fade-in">
                 <div class="grafico-header">
                     <h3>Produção Anual por Produto</h3>
-                    <div class="btn-group">
+                    <!-- <div class="btn-group">
                         <button class="btn btn-outline btn-sm" onclick="exportarDados('grafico')">
                             <i class="fas fa-download"></i> Exportar
                         </button>
-                    </div>
+                    </div> -->
                 </div>
                 <canvas id="graficoProducao" width="400" height="200"></canvas>
             </div>
@@ -310,6 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['registrar_producao']))
                         <select id="mes" name="mes" class="form-control" required>
                             <option value="">Selecione o mês...</option>
                             <?php for($i = 1; $i <= 12; $i++): ?>
+                                <?php $meses = ['jan','feve'] ?>
                                 <option value="<?php echo $i; ?>"><?php echo DateTime::createFromFormat('!m', $i)->format('F'); ?></option>
                             <?php endfor; ?>
                         </select>
@@ -356,8 +357,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['registrar_producao']))
                 datasets: [{
                     label: 'Produção Anual (unidades)',
                     data: producao,
-                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                    borderColor: 'rgba(52, 152, 219, 1)',
+                    backgroundColor: '#84c2ecff',
+                    borderColor: '#3498dbff',
                     borderWidth: 2,
                     borderRadius: 4
                 }]

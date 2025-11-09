@@ -113,31 +113,62 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['excluir_produto'])) {
     
     $database = new Database();
     $db = $database->getConnection();
-    
-    // Verificar se há produção associada
-    $query_check = "SELECT COUNT(*) as total FROM producao_real WHERE produto_id = ?";
-    $stmt_check = $db->prepare($query_check);
-    $stmt_check->bindParam(1, $id);
-    $stmt_check->execute();
-    $result = $stmt_check->fetch(PDO::FETCH_ASSOC);
-    
-    if ($result['total'] > 0) {
-        $mensagem_erro = "Não é possível excluir o produto pois existem registros de produção associados.";
-    } else {
-        $query = "DELETE FROM produtos WHERE id = ?";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(1, $id);
+
+    try {
+        // Iniciar transação para garantir consistência
+        $db->beginTransaction();
         
-        if ($stmt->execute()) {
+        // 1. Primeiro excluir a produção real associada
+        $query_delete_producao = "DELETE FROM producao_real WHERE produto_id = ?";
+        $stmt_producao = $db->prepare($query_delete_producao);
+        $stmt_producao->bindParam(1, $id);
+        $stmt_producao->execute();
+        
+        // 2. Excluir o plano de produção associado
+        $query_delete_plano = "DELETE FROM plano_producao WHERE produto_id = ?";
+        $stmt_plano = $db->prepare($query_delete_plano);
+        $stmt_plano->bindParam(1, $id);
+        $stmt_plano->execute();
+        
+        // 3. Verificar e tratar itens de proforma associados
+        $query_check_proforma = "SELECT COUNT(*) as total FROM proforma_itens WHERE produto_id = ?";
+        $stmt_check_proforma = $db->prepare($query_check_proforma);
+        $stmt_check_proforma->bindParam(1, $id);
+        $stmt_check_proforma->execute();
+        $result_proforma = $stmt_check_proforma->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result_proforma['total'] > 0) {
+            // Excluir os itens da proforma associados a este produto
+            $query_delete_proforma = "DELETE FROM proforma_itens WHERE produto_id = ?";
+            $stmt_delete_proforma = $db->prepare($query_delete_proforma);
+            $stmt_delete_proforma->bindParam(1, $id);
+            $stmt_delete_proforma->execute();
+        }
+        
+        // 4. Finalmente excluir o produto
+        $query_delete_produto = "DELETE FROM produtos WHERE id = ?";
+        $stmt_produto = $db->prepare($query_delete_produto);
+        $stmt_produto->bindParam(1, $id);
+        
+        if ($stmt_produto->execute()) {
             // Apagar imagem se existir
             if (!empty($imagem) && file_exists('../uploads/' . $imagem)) {
                 unlink('../uploads/' . $imagem);
             }
-            $mensagem_sucesso = "Produto excluído com sucesso!";
+            
+            // Confirmar todas as operações
+            $db->commit();
+            
+            $mensagem_sucesso = "Produto e todos os registros associados excluídos com sucesso!";
             $produtos = getProdutos();
         } else {
+            $db->rollBack();
             $mensagem_erro = "Erro ao excluir produto.";
         }
+    } catch (PDOException $e) {
+        // Em caso de erro, reverter todas as operações
+        $db->rollBack();
+        $mensagem_erro = "Erro ao excluir: " . $e->getMessage();
     }
 }
 

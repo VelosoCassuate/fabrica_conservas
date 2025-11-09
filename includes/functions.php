@@ -23,17 +23,18 @@ function getProdutos() {
 }
 
 function gerarChaveDeAcesso ($nome) : string {
-    return mb_substr(mb_strtolower($nome), floor(mb_strlen($nome) / 2), mb_strlen($nome));
+    return strtoupper(trim(mb_substr(mb_strtolower($nome), floor(mb_strlen($nome) / 2), mb_strlen($nome))));
 }
 
-function registarCliente ($nome, $email) {
+function registarCliente ($nome, $email) : string {
     $database = new Database();
     $db = $database->getConnection();
 
-    $chave_acesso = gerarChaveDeAcesso($email);
+    $chave_acesso = gerarChaveDeAcesso($nome);
 
     $query = $db->prepare("INSERT INTO clientes (nome, email, chave_acesso, ativo) VALUES (?, ?, ?, ?);");
     $query->execute([$nome, $email, $chave_acesso, 1]);  
+    return gerarChaveDeAcesso($nome);
 }
 
 

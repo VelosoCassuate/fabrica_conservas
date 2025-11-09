@@ -15,7 +15,7 @@
   --text-color: #333;
   --text-light: #7f8c8d;
   --border-color: #ddd;
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.15);
   --border-radius: 8px;
   --transition: all 0.3s ease;

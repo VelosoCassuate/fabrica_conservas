@@ -123,8 +123,8 @@ SELECT * FROM clientes;
 
 
 
--- Adicionar coluna de imagem aos produtos
-ALTER TABLE produtos ADD COLUMN imagem VARCHAR(255) NULL;
+-- -- Adicionar coluna de imagem aos produtos
+-- ALTER TABLE produtos ADD COLUMN imagem VARCHAR(255) NULL;
 
 -- Criar tabela de logs de acesso se não existir
 CREATE TABLE IF NOT EXISTS log_acessos (
@@ -145,5 +145,5 @@ DESCRIBE proformas;
 ALTER TABLE proformas 
 MODIFY COLUMN status ENUM('pendente', 'confirmada', 'cancelada') DEFAULT 'pendente';
 
--- Verificar os dados atuais
-SELECT id, status FROM proformas;
+-- -- Verificar os dados atuais
+-- SELECT id, status FROM proformas;

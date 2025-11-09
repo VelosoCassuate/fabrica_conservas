@@ -114,7 +114,7 @@ if($proforma_id) {
         </head>
         <body>
             <div class="container">
-                <div class="watermark">PROFORMA</div>
+                <div class="watermark">' . EMPRESA_NOME . '</div>
                 
                 <div class="header">
                     <h1>PROFORMA</h1>
@@ -192,11 +192,11 @@ if($proforma_id) {
                 
                 <div class="no-print" style="text-align: center; margin-top: 20px;">
                 <button onclick="window.print()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">
-                    🖨️ Imprimir / Salvar como PDF
+                     Imprimir / Salvar como PDF
                 </button>
                
                 <button onclick="window.close()" style="padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">
-                    ❌ Fechar Janela
+                     Fechar Janela
                 </button>
             </div>
             </div>

@@ -15,7 +15,7 @@ define('SITE_URL', 'http://localhost/fabrica_conservas');
 
 // Configurações da empresa
 define('EMPRESA_NOME', 'BConserves');
-define('EMPRESA_ENDERECO', 'Matacuane');
+define('EMPRESA_ENDERECO', 'Ponta Gea');
 define('EMPRESA_TELEFONE', '+258 86 334 5668');
 define('EMPRESA_EMAIL', 'bconserves@gmail.com');
 define('EMPRESA_HORARIO', 'Segunda a Sexta: 8h00 - 19h00');

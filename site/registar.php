@@ -28,9 +28,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
       // Supondo que registarCliente() faz a inserção e pode gerar a chave de acesso.
       // Neste cenário, a chave é enviada offline/por e-mail posteriormente.
-      registarCliente($nome, $email); 
+      $chave = registarCliente($nome, $email); 
       
-      $sucesso = 'Registro recebido com sucesso! Entraremos em contato em breve para fornecer a sua chave de acesso.';
+      $sucesso = 'Registro recebido com sucesso! A sua chave de acesso é: ' . $chave;
       
       // Limpa as variáveis do formulário após o sucesso
       $nome = '';
@@ -248,11 +248,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <h2><i class="fas fa-user-plus"></i> Registro de Novo Cliente</h2>
                     
                     <?php if($erro): ?>
-                        <div class="erro"><i class="fas fa-exclamation-triangle"></i> **<?php echo $erro; ?>**</div>
+                        <div class="erro"><i class="fas fa-exclamation-triangle"></i> <?php echo $erro; ?></div>
                     <?php endif; ?>
                     
                     <?php if($sucesso): ?>
-                        <div class="sucesso"><i class="fas fa-check-circle"></i> **<?php echo $sucesso; ?>**</div>
+                        <div class="sucesso"><i class="fas fa-check-circle"></i> <?php echo $sucesso; ?></div>
                     <?php endif; ?>
                     
                     <form method="POST" class="registro-form">
@@ -291,7 +291,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </form>
                     
                     <p class="info-text">
-                        A **chave de acesso** necessária para o login será enviada por e-mail após a confirmação e aprovação do seu registro pela nossa equipa.
+                        A chave de acesso necessária para o login será enviada por e-mail após a confirmação e aprovação do seu registro pela nossa equipa.
                     </p>
                 </div>
             </div>

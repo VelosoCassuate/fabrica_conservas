@@ -209,7 +209,7 @@ ob_start();
         <p>Gerar relatórios de produção</p>
         <div class="btn-group" style="margin-top: 10px;">
             <button type="submit" name="exportar_producao" class="btn btn-success btn-sm">
-                <i class="fas fa-file-html"></i> HTML
+                <i class="fas fa-file"></i> HTML
             </button>
             <button type="submit" name="exportar_csv" class="btn btn-info btn-sm">
                 <i class="fas fa-file-csv"></i> CSV

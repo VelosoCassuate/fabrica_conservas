@@ -805,7 +805,7 @@ $produtos_destaque = array_slice(getProdutos(), 0, 3);
 
     <main>
         <!-- Hero Section Melhorada -->
-        <section class="hero">
+        <section id="hero" class="hero">
             <!-- Sistema de partículas avançado -->
             <div class="hero-particles">
                 <div class="particle"></div>
@@ -992,12 +992,12 @@ $produtos_destaque = array_slice(getProdutos(), 0, 3);
             let mouseY = 0;
             
             // Rastrear movimento do mouse
-            document.addEventListener('mousemove', function(e) {
+            document.getElementById('hero').addEventListener('mousemove', function(e) {
                 mouseX = e.clientX;
-                mouseY = e.clientY;
+                mouseY = e.clientY - 50;
                 
                 // Criar partículas interativas ocasionalmente
-                if (Math.random() > 0.7) {
+                if (Math.random() > 0.2) {
                     createInteractiveParticle(mouseX, mouseY);
                 }
             });
@@ -1011,7 +1011,7 @@ $produtos_destaque = array_slice(getProdutos(), 0, 3);
                 const particle = document.createElement('div');
                 particle.className = 'interactive-particle';
                 particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
+                particle.style.top = (y - 20) + 'px';
                 
                 heroInteraction.appendChild(particle);
                 
@@ -1028,7 +1028,7 @@ $produtos_destaque = array_slice(getProdutos(), 0, 3);
                 const moveY = (e.clientY - window.innerHeight / 2) / 50;
                 
                 particles.forEach(particle => {
-                    const speed = parseFloat(particle.style.width) / 100;
+                    const speed = parseFloat(particle.style.width) / 20;
                     particle.style.transform = `translate(${moveX * speed}px, ${moveY * speed}px)`;
                 });
             });

@@ -111,11 +111,11 @@ ob_start();
 <div class="grafico-container fade-in">
     <div class="grafico-header">
         <h3>Produção Real (Últimos 6 Meses)</h3>
-        <div class="btn-group">
+        <!-- <div class="btn-group">
             <button class="btn btn-outline btn-sm" onclick="exportarDados('dashboard')">
                 <i class="fas fa-download"></i> Exportar PDF
             </button>
-        </div>
+        </div> -->
     </div>
     <canvas id="graficoDashboard" width="400" height="200"></canvas>
 </div>
