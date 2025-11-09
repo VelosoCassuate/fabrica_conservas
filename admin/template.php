@@ -14,6 +14,7 @@ $mensagem_erro = $mensagem_erro ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,34 +30,35 @@ $mensagem_erro = $mensagem_erro ?? '';
             border-left: 4px solid;
             animation: slideIn 0.3s ease-out;
         }
-        
+
         .alert-success {
             background: #d4edda;
             border-left-color: #28a745;
             color: #155724;
         }
-        
+
         .alert-error {
             background: #f8d7da;
             border-left-color: #dc3545;
             color: #721c24;
         }
-        
+
         @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateX(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
-        
+
         .alert-auto-hide {
             animation: slideIn 0.3s ease-out, fadeOut 5s 2s ease-in forwards;
         }
-        
+
         @keyframes fadeOut {
             to {
                 opacity: 0;
@@ -68,6 +70,7 @@ $mensagem_erro = $mensagem_erro ?? '';
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -79,20 +82,23 @@ $mensagem_erro = $mensagem_erro ?? '';
             <nav class="sidebar-nav">
                 <ul>
                     <li><a href="index.php" class="<?php echo $current_page == 'dashboard' ? 'active' : ''; ?>">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a></li>
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a></li>
                     <li><a href="analise_producao.php" class="<?php echo $current_page == 'analise' ? 'active' : ''; ?>">
-                        <i class="fas fa-chart-line"></i> Análise de Produção
-                    </a></li>
+                            <i class="fas fa-chart-line"></i> Análise de Produção
+                        </a></li>
                     <li><a href="consulta_produtos.php" class="<?php echo $current_page == 'produtos' ? 'active' : ''; ?>">
-                        <i class="fas fa-boxes"></i> Consulta de Produtos
-                    </a></li>
+                            <i class="fas fa-boxes"></i> Consulta de Produtos
+                        </a></li>
+                    <li><a href="reclamacoes.php" class="<?php echo $current_page == 'reclamacoes' ? 'active' : ''; ?>">
+                            <i class="fas fa-comments"></i> Reclamações
+                        </a></li>
                     <li><a href="gestao_arquivos.php" class="<?php echo $current_page == 'arquivos' ? 'active' : ''; ?>">
-                        <i class="fas fa-file-upload"></i> Gestão de Arquivos
-                    </a></li>
+                            <i class="fas fa-file-upload"></i> Gestão de Arquivos
+                        </a></li>
                     <li><a href="logout.php">
-                        <i class="fas fa-sign-out-alt"></i> Sair
-                    </a></li>
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </a></li>
                 </ul>
             </nav>
         </aside>
@@ -110,13 +116,13 @@ $mensagem_erro = $mensagem_erro ?? '';
             </div>
 
             <!-- Notificações -->
-            <?php if(!empty($mensagem_sucesso)): ?>
+            <?php if (!empty($mensagem_sucesso)): ?>
                 <div class="alert alert-success alert-auto-hide" id="alert-sucesso">
                     <i class="fas fa-check-circle"></i> <?php echo $mensagem_sucesso; ?>
                 </div>
             <?php endif; ?>
 
-            <?php if(!empty($mensagem_erro)): ?>
+            <?php if (!empty($mensagem_erro)): ?>
                 <div class="alert alert-error" id="alert-erro">
                     <i class="fas fa-exclamation-circle"></i> <?php echo $mensagem_erro; ?>
                 </div>
@@ -124,7 +130,7 @@ $mensagem_erro = $mensagem_erro ?? '';
 
             <!-- CONTEÚDO ESPECÍFICO DA PÁGINA SERÁ INCLUÍDO AQUI -->
             <?php echo $content; ?>
-            
+
         </main>
     </div>
 
@@ -140,7 +146,7 @@ $mensagem_erro = $mensagem_erro ?? '';
                     successAlert.style.display = 'none';
                 }, 5000);
             }
-            
+
             // Fechar notificações manualmente
             document.addEventListener('click', function(e) {
                 if (e.target.closest('.alert')) {
@@ -150,4 +156,5 @@ $mensagem_erro = $mensagem_erro ?? '';
         });
     </script>
 </body>
+
 </html>
