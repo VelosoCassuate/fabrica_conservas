@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cadastrar_produto'])) 
     $preco_embalagem = $_POST['preco_embalagem'] ?? 0;
     $descricao = $_POST['descricao'] ?? '';
     
+    // Novos campos para plano de produção
+    $plano_mes = $_POST['plano_mes'] ?? '';
+    $plano_quantidade = $_POST['plano_quantidade'] ?? '';
+    
     // Processar upload de imagem
     $imagem_nome = '';
     if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] == 0) {
@@ -34,22 +38,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cadastrar_produto'])) 
         $database = new Database();
         $db = $database->getConnection();
         
-        $query = "INSERT INTO produtos (nome, preco, exportacao, material_embalagem, preco_embalagem, descricao, imagem) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(1, $nome);
-        $stmt->bindParam(2, $preco);
-        $stmt->bindParam(3, $exportacao);
-        $stmt->bindParam(4, $material_embalagem);
-        $stmt->bindParam(5, $preco_embalagem);
-        $stmt->bindParam(6, $descricao);
-        $stmt->bindParam(7, $imagem_nome);
-        
-        if ($stmt->execute()) {
-            $mensagem_sucesso = "Produto cadastrado com sucesso!";
-            $produtos = getProdutos();
-        } else {
-            $mensagem_erro = "Erro ao cadastrar produto.";
+        try {
+            $db->beginTransaction();
+            
+            // Inserir produto
+            $query = "INSERT INTO produtos (nome, preco, exportacao, material_embalagem, preco_embalagem, descricao, imagem) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(1, $nome);
+            $stmt->bindParam(2, $preco);
+            $stmt->bindParam(3, $exportacao);
+            $stmt->bindParam(4, $material_embalagem);
+            $stmt->bindParam(5, $preco_embalagem);
+            $stmt->bindParam(6, $descricao);
+            $stmt->bindParam(7, $imagem_nome);
+            
+            if ($stmt->execute()) {
+                $produto_id = $db->lastInsertId();
+                
+                // Inserir plano de produção se os campos foram preenchidos
+                if (!empty($plano_mes) && !empty($plano_quantidade)) {
+                    $query_plano = "INSERT INTO plano_producao (produto_id, mes, quantidade_planeada) 
+                                   VALUES (?, ?, ?)";
+                    $stmt_plano = $db->prepare($query_plano);
+                    $stmt_plano->bindParam(1, $produto_id);
+                    $stmt_plano->bindParam(2, $plano_mes);
+                    $stmt_plano->bindParam(3, $plano_quantidade);
+                    
+                    if (!$stmt_plano->execute()) {
+                        throw new Exception("Erro ao cadastrar plano de produção.");
+                    }
+                }
+                
+                $db->commit();
+                $mensagem_sucesso = "Produto cadastrado com sucesso!" . 
+                                   (!empty($plano_mes) ? " Plano de produção também foi registrado." : "");
+                $produtos = getProdutos();
+            } else {
+                throw new Exception("Erro ao cadastrar produto.");
+            }
+            
+        } catch (Exception $e) {
+            $db->rollBack();
+            $mensagem_erro = $e->getMessage();
         }
     }
 }
@@ -321,6 +352,36 @@ ob_start();
                 </div>
             </div>
 
+            <!-- NOVOS CAMPOS: Plano de Produção -->
+            <div class="form-section">
+                <h4><i class="fas fa-calendar-alt"></i> Plano de Produção (Opcional)</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="plano_mes">Mês de Produção</label>
+                        <select id="plano_mes" name="plano_mes" class="form-control">
+                            <option value="">Selecione o mês</option>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="plano_quantidade">Quantidade Planeada</label>
+                        <input type="number" id="plano_quantidade" name="plano_quantidade" class="form-control" placeholder="Ex: 1000">
+                        <small class="text-muted">Quantidade em unidades</small>
+                    </div>
+                </div>
+            </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" onclick="fecharModal('modalCadastroProduto')">Cancelar</button>
                 <button type="submit" name="cadastrar_produto" class="btn btn-primary">
@@ -539,6 +600,22 @@ document.getElementById('searchProdutos').addEventListener('input', filtrarProdu
 // Debug: verificar se os produtos foram carregados
 console.log('Produtos carregados:', produtosData);
 </script>
+
+<style>
+.form-section {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border-left: 4px solid #007bff;
+}
+
+.form-section h4 {
+    margin-bottom: 15px;
+    color: #007bff;
+    font-size: 16px;
+}
+</style>
 <?php
 $content = ob_get_clean();
 include 'template.php';

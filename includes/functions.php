@@ -37,6 +37,37 @@ function registarCliente ($nome, $email) : string {
     return gerarChaveDeAcesso($nome);
 }
 
+function getCumprimentoPlanosProducao() {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "
+        SELECT 
+            p.id,
+            p.nome,
+            COALESCE(pp.quantidade_planeada, 0) as quantidade_planeada,
+            COALESCE(pr.total_produzido, 0) as total_produzido,
+            CASE 
+                WHEN COALESCE(pp.quantidade_planeada, 0) = 0 THEN 0
+                ELSE (COALESCE(pr.total_produzido, 0) / pp.quantidade_planeada) * 100
+            END as percentagem_cumprimento
+        FROM produtos p
+        LEFT JOIN plano_producao pp ON p.id = pp.produto_id
+        LEFT JOIN (
+            SELECT produto_id, SUM(quantidade) as total_produzido
+            FROM producao_real
+            GROUP BY produto_id
+        ) pr ON p.id = pr.produto_id
+        WHERE pp.quantidade_planeada IS NOT NULL
+        ORDER BY percentagem_cumprimento DESC
+    ";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 function getProdutoPorId($id) {
     $database = new Database();
